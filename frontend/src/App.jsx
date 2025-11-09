@@ -7,6 +7,7 @@ import ExpertDashboard from "./pages/ExpertDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
+import LLMWidget from "./pages/LlmWidget";
 
 function App() {
   return (
@@ -20,7 +21,11 @@ function App() {
         <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
         <Route path="/expert-dashboard" element={<ExpertDashboard />}/>
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+
       </Routes>
+
+       <LLMWidget />
     </Router>
   );
 }
