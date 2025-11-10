@@ -1,24 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LlmWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const scrollRef = useRef();
+
+  // Scroll to bottom on new message
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
+
+    const userMessage = { type: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     setLoading(true);
+
     try {
-      const res = await axios.post("https://secure-cloud-agri.onrender.com/api/llm/generate", {
-        prompt: input,
-      });
-      setResponse(res.data.output || "No response received.");
+      const res = await axios.post(
+        "https://secure-cloud-agri.onrender.com/api/llm/generate",
+        { prompt: input }
+      );
+      const botMessage = {
+        type: "bot",
+        text: res.data.output || "No response received.",
+      };
+      setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       console.error("LLM Error:", err);
-      setResponse("❌ Error contacting the AI server.");
+      setMessages((prev) => [
+        ...prev,
+        { type: "bot", text: "❌ Error contacting the AI server." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -26,132 +48,89 @@ export default function LlmWidget() {
 
   return (
     <>
-      {/* Floating LLM Button */}
+      {/* Floating Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          style={{
-            position: "fixed",
-            bottom: "25px",
-            right: "25px",
-            background: "#2563eb",
-            color: "white",
-            borderRadius: "50%",
-            width: "60px",
-            height: "60px",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "28px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-          }}
+          className="fixed bottom-6 right-6 bg-green-600 hover:bg-green-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-transform hover:scale-110"
           title="Ask AI"
         >
           💬
         </button>
       )}
 
-      {/* LLM Chat Window */}
-      {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "20px",
-            right: "20px",
-            width: "350px",
-            height: "420px",
-            background: "white",
-            borderRadius: "12px",
-            boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            fontFamily: "system-ui, sans-serif",
-            zIndex: 9999,
-          }}
-        >
-          {/* Header */}
-          <div
-            style={{
-              background: "#2563eb",
-              color: "white",
-              padding: "10px 16px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
+      {/* Chat Window */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.4 }}
+            className="fixed bottom-6 right-6 w-80 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50"
           >
-            <h4 style={{ margin: 0 }}>AI Assistant 🤖</h4>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "white",
-                fontSize: "18px",
-                cursor: "pointer",
-              }}
-            >
-              ✖
-            </button>
-          </div>
+            {/* Header */}
+            <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
+              <h4 className="font-semibold text-lg">AI Assistant 🤖</h4>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white text-xl font-bold hover:scale-110 transition-transform"
+              >
+                ✖
+              </button>
+            </div>
 
-          {/* Response area */}
-          <div
-            style={{
-              flex: 1,
-              padding: "10px",
-              overflowY: "auto",
-              fontSize: "14px",
-              whiteSpace: "pre-wrap",
-              color: "#111",
-            }}
-          >
-            {loading ? "💭 Generating response..." : response || "Ask me anything about your crops!"}
-          </div>
-
-          {/* Input area */}
-          <div
-            style={{
-              display: "flex",
-              borderTop: "1px solid #ddd",
-              padding: "8px",
-              gap: "6px",
-            }}
-          >
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your question..."
-              style={{
-                flex: 1,
-                padding: "8px",
-                borderRadius: "8px",
-                border: "1px solid #ccc",
-                resize: "none",
-                height: "45px",
-              }}
-            />
-            <button
-              onClick={handleSend}
-              disabled={loading}
-              style={{
-                background: "#2563eb",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                padding: "0 12px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              title="Send"
+            {/* Messages */}
+            <div
+              ref={scrollRef}
+              className="flex-1 p-4 overflow-y-auto space-y-3 text-sm text-gray-800"
             >
-              <Send size={18} />
-            </button>
-          </div>
-        </div>
-      )}
+              {messages.length === 0 && !loading && (
+                <p className="text-gray-500">
+                  Ask me anything about your crops! 🌱
+                </p>
+              )}
+
+              {messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`p-2 rounded-lg max-w-[85%] ${
+                    msg.type === "user"
+                      ? "bg-green-100 text-green-900 self-end"
+                      : "bg-gray-100 text-gray-900 self-start"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              ))}
+
+              {loading && (
+                <div className="text-gray-500">💭 Generating response...</div>
+              )}
+            </div>
+
+            {/* Input */}
+            <div className="flex p-3 gap-2 border-t border-gray-200">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your question..."
+                className="flex-1 resize-none h-12 px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSend}
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 text-white rounded-xl px-4 flex items-center justify-center shadow-md"
+                title="Send"
+              >
+                <Send size={18} />
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

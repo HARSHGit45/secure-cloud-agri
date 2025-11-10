@@ -72,7 +72,7 @@ export default function SmartUploader() {
         const formData = new FormData();
         formData.append("file", pdfFile);
 
-        await axios.post("http://localhost:5000/api/data/upload", formData, {
+        await axios.post("https://secure-cloud-agri.onrender.com/api/data/upload", formData, {
           headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
         });
 

@@ -67,23 +67,28 @@ export default function ExpertDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-200 p-6 relative overflow-hidden">
       
+      {/* Decorative Farmer Illustration */}
+      <div className="absolute top-0 left-0 w-48 h-48 opacity-20 pointer-events-none bg-[url('https://cdn-icons-png.flaticon.com/512/1534/1534369.png')] bg-contain bg-no-repeat"></div>
+      <div className="absolute bottom-0 right-0 w-56 h-56 opacity-15 pointer-events-none bg-[url('https://cdn-icons-png.flaticon.com/512/4151/4151060.png')] bg-contain bg-no-repeat"></div>
+
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-10">
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-3xl font-bold text-green-700"
+          transition={{ duration: 0.6 }}
+          className="text-4xl font-extrabold text-green-700 drop-shadow-md"
         >
-          Expert Dashboard
+          🌱 Expert Dashboard
         </motion.h2>
+
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-lg"
+          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg shadow-lg hover:shadow-xl transition-transform"
         >
           Logout
         </motion.button>
@@ -94,9 +99,9 @@ export default function ExpertDashboard() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="bg-white p-6 rounded-xl shadow-lg mb-6"
+        className="bg-white p-6 rounded-2xl shadow-lg mb-8"
       >
-        <h3 className="text-xl font-semibold mb-4 text-green-800">Farmers</h3>
+        <h3 className="text-2xl font-semibold mb-4 text-green-800">Farmers</h3>
 
         {loadingFarmers ? (
           <p className="text-gray-500">Loading farmers...</p>
@@ -137,11 +142,10 @@ export default function ExpertDashboard() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
-            className="bg-white p-6 rounded-xl shadow-lg"
+            className="bg-white p-6 rounded-2xl shadow-lg"
           >
-            <h3 className="text-xl font-semibold mb-4">
-              Files uploaded by{" "}
-              <span className="text-green-600">{selectedFarmer}</span>
+            <h3 className="text-2xl font-semibold mb-4 text-green-800">
+              Files uploaded by <span className="text-green-600">{selectedFarmer}</span>
             </h3>
 
             {loadingFiles ? (
