@@ -10,18 +10,32 @@ const app = express();
 // ✅ Configure CORS properly for Render + Vercel + localhost
 app.use(cors({
   origin: [
-    "https://secure-cloud-agri.vercel.app", // your deployed frontend
-    "http://localhost:5173"                 // local development
+    "https://secure-cloud-agri.vercel.app",
+    "http://localhost:5173"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true
+  credentials: true,
 }));
+
+// ✅ Handle preflight requests
+app.options("*", cors());
+
+
 
 app.use(bodyParser.json());
 
-// ✅ Handle preflight OPTIONS automatically
-app.options(/.*/, cors());
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://secure-cloud-agri.vercel.app");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  if (req.method === "OPTIONS") {
+    res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+    return res.status(200).json({});
+  }
+  next();
+});
+
 
 
 // ✅ Register all routes
