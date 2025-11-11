@@ -21,7 +21,8 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // ✅ Handle preflight OPTIONS automatically
-app.options("*", cors());
+app.options(/.*/, cors());
+
 
 // ✅ Register all routes
 app.use("/api/data", dataRoutes);
