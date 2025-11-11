@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+
 export default function LandingPage() {
   const navigate = useNavigate();
 
@@ -23,14 +24,8 @@ export default function LandingPage() {
         </p>
       </div>
 
-      {/* Hero Illustration */}
-      <div className="mt-10">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/9134/9134498.png"
-          alt="Farm Data Cloud"
-          className="w-64 drop-shadow-lg animate-float"
-        />
-      </div>
+      {/* Farming Image */}
+     
 
       {/* Buttons */}
       <div className="mt-10 flex flex-col sm:flex-row gap-4">
